@@ -53,6 +53,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     // Listen on random port
     server.listen(0, '127.0.0.1', () => {
       const port = (server.address() as net.AddressInfo).port
+      logger.debug('port:', port)
       // The server is implemented in R
       let Args: string[]
       if (debug) {
@@ -70,7 +71,8 @@ export async function activate(context: ExtensionContext): Promise<void> {
       const childProcess = spawn(path, Args)
       childProcess.stderr.on('data', (chunk: Buffer) => {
         const str = chunk.toString()
-        logger.debug('R Language Server:', str)
+        // tslint:disable-next-line: no-console
+        console.error(str)
         client.outputChannel.appendLine(str)
       })
       childProcess.on('exit', (code, signal) => {
@@ -99,7 +101,7 @@ export async function activate(context: ExtensionContext): Promise<void> {
     outputChannelName: 'r'
   }
 
-  client = new LanguageClient('R Language Server', 'r-lsp', serverOptions, clientOptions)
+  client = new LanguageClient('r', 'R Language Server', serverOptions, clientOptions)
 
   client.onReady().then(() => {
     workspace.showMessage('R language server started', 'more')

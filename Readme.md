@@ -2,6 +2,8 @@
 
 R LSP Client for [coc.nvim](https://github.com/neoclide/coc.nvim), powered by the [R Language Server](https://github.com/REditorSupport/languageserver).
 
+**Note** the languageserver doesn't work with unsaved files.
+
 This package exposes the following configuration options:
 
 - `r.lsp.path`: Path to R binary for launching the R Language Server package (see below). Examples: `/usr/bin/R` (Linux/macOS), `C:\\Program Files\\R\\R-3.5.2\\bin\\x64\\R.exe` (Windows).
