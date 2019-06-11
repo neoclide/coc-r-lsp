@@ -1,0 +1,69 @@
+{
+  "name": "coc-r-lsp",
+  "version": "1.0.1",
+  "description": "R language server extension for coc.nvim",
+  "main": "lib/index.js",
+  "publisher": "chemzqm",
+  "keywords": [
+    "coc.nvim",
+    "R",
+    "R language"
+  ],
+  "engines": {
+    "coc": "^0.0.69"
+  },
+  "scripts": {
+    "clean": "rimraf lib",
+    "build": "tsc -p tsconfig.json",
+    "prepare": "npx npm-run-all clean build"
+  },
+  "activationEvents": [
+    "onLanguage:r"
+  ],
+  "contributes": {
+    "configuration": {
+      "type": "object",
+      "properties": {
+        "r.trace.server": {
+          "type": "string",
+          "default": "off",
+          "enum": [
+            "off",
+            "messages",
+            "verbose"
+          ]
+        },
+        "r.lsp.path": {
+          "type": "string",
+          "default": "",
+          "description": "Path to R binary for launching Language Server"
+        },
+        "r.lsp.debug": {
+          "type": "boolean",
+          "default": false,
+          "description": "Debug R Language Server"
+        },
+        "r.lsp.diagnostics": {
+          "type": "boolean",
+          "default": true,
+          "description": "Enable Diagnostics"
+        }
+      }
+    }
+  },
+  "author": "chemzqm@gmail.com",
+  "license": "MIT",
+  "devDependencies": {
+    "@chemzqm/tsconfig": "^0.0.3",
+    "@chemzqm/tslint-config": "^1.0.18",
+    "@types/node": "^11.13.10",
+    "@types/winreg": "^1.2.30",
+    "coc.nvim": "^0.0.69",
+    "rimraf": "^2.6.3",
+    "tslint": "^5.16.0",
+    "typescript": "^3.5.1"
+  },
+  "dependencies": {
+    "winreg": "^1.2.4"
+  }
+}
