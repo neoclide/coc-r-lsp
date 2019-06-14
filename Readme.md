@@ -9,7 +9,7 @@ R LSP Client for [coc.nvim](https://github.com/neoclide/coc.nvim), powered by th
 In your vim/neovim, run the following command:
 
 ```
-:CocInstall coc-json
+:CocInstall coc-r-lsp
 ```
 
 ## Configuration options
