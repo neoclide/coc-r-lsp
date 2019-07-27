@@ -20,7 +20,7 @@ This package exposes the following configuration options:
 - `r.lsp.debug`: Enable debugging traces. Defaults to `false`. Set this to `true` if you are having trouble getting the Language Server working.
 - `r.lsp.diagnostics`: Enable linting of R code, using the lintr package. Defaults to `true`. To disable this, you must have at least version 0.2.7 of the R Language Server installed.
 
-Checkout [using configuration file](https://github.com/neoclide/coc.nvim/wiki/Using-configuration-file).
+Checkout [using configuration file](https://github.com/neoclide/coc.nvim/wiki/Using-the-configuration-file).
 
 ## Requirements
 
