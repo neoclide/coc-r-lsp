@@ -18,7 +18,8 @@
     "prepare": "npx npm-run-all clean build"
   },
   "activationEvents": [
-    "onLanguage:r"
+    "onLanguage:r",
+    "onLanguage:rmarkdown"
   ],
   "contributes": {
     "configuration": {
