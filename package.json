@@ -34,6 +34,11 @@
             "verbose"
           ]
         },
+        "r.lsp.args": {
+          "type": "array",
+          "default": [],
+          "description": "The command line arguments to use when launching R Language Server"
+        },
         "r.lsp.path": {
           "type": "string",
           "default": "",
@@ -48,6 +53,16 @@
           "type": "boolean",
           "default": true,
           "description": "Enable Diagnostics"
+        },
+        "r.lsp.lang": {
+          "type": "string",
+          "default": "",
+          "description": "Override default LANG environment variable"
+        },
+        "r.lsp.use_stdio": {
+          "type": "boolean",
+          "default": false,
+          "description": "Use STDIO connection instead of TCP. (Unix/macOS users only)"
         }
       }
     }

@@ -37,7 +37,7 @@ async function createClient(config: WorkspaceConfiguration, selector: DocumentFi
   }
 
   const options = { cwd: cwd, env: env }
-  const initArgs: string[] = config.get<string[]>("lsp.args").concat("--quiet", "--slave")
+  const initArgs: string[] = config.get<string[]>("lsp.args", []).concat("--quiet", "--slave")
 
   const tcpServerOptions = () => new Promise<ChildProcess | StreamInfo>((resolve, reject) => {
     // Use a TCP socket because of problems with blocking STDIO
