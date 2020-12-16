@@ -3,7 +3,7 @@ import {
   ExtensionContext, LanguageClient, LanguageClientOptions,
   OutputChannel,
   RevealOutputChannelOn, StreamInfo,
-  Uri, workspace, WorkspaceConfiguration
+  Uri, window, workspace, WorkspaceConfiguration
 } from 'coc.nvim'
 import net from 'net'
 import os from 'os'
@@ -125,7 +125,7 @@ function getKey(uri: Uri) {
 
 export function activate(context: ExtensionContext) {
   const config = workspace.getConfiguration('r')
-  const outputChannel: OutputChannel = workspace.createOutputChannel('R Language Server')
+  const outputChannel: OutputChannel = window.createOutputChannel('R Language Server')
   const { subscriptions } = context
 
   async function didOpenTextDocument(document: TextDocument) {
