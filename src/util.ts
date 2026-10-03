@@ -1,6 +1,6 @@
 import winreg from "winreg"
 import { WorkspaceConfiguration } from 'coc.nvim'
-import { existsSync } from "fs"
+import { accessSync, constants, existsSync, statSync } from "fs"
 import { delimiter, join } from "path"
 
 export async function getRPath(config: WorkspaceConfiguration) {
@@ -14,7 +14,13 @@ export async function getRPath(config: WorkspaceConfiguration) {
   for (const directory of (process.env.PATH || '').split(delimiter)) {
     if (!directory) continue
     const candidate = join(directory, executable)
-    if (existsSync(candidate)) return candidate
+    try {
+      if (!statSync(candidate).isFile()) continue
+      accessSync(candidate, process.platform === 'win32' ? constants.F_OK : constants.X_OK)
+      return candidate
+    } catch (_) {
+      // Missing, inaccessible and non-executable entries must not hide a later R.
+    }
   }
 
   if (process.platform === "win32") {

@@ -19,7 +19,12 @@ function resolver(platform, PATH, files, registryPath) {
   let registryReads = 0;
   class Registry { get(_, cb) { registryReads++; cb(null, { value: registryPath }); } }
   const mod = load('util.ts', {
-    winreg: Registry, fs: { existsSync: file => files.includes(file) },
+    winreg: Registry, fs: {
+      constants: fs.constants,
+      existsSync: file => files.includes(file),
+      statSync: file => ({ isFile: () => files.includes(file) }),
+      accessSync: file => { if (!files.includes(file)) throw new Error('ENOENT'); },
+    },
     path: platform === 'win32' ? path.win32 : path.posix,
   }, { platform, env: { PATH } });
   return { get: configured => mod.getRPath({ get: () => configured }), reads: () => registryReads };
@@ -43,6 +48,30 @@ test('registry fallback and missing PATH retain prior behavior', async () => {
 });
 test('Unix PATH uses its first matching R executable', async () => {
   assert.equal(await resolver('darwin', '/first:/second', ['/first/R', '/second/R']).get(), '/first/R');
+});
+
+test('PATH skips directories and non-executable files before a real executable', {
+  skip: process.platform === 'win32' && 'Unix executable permission regression',
+}, async t => {
+  const root = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'coc-r-path-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const directories = ['directory', 'not-executable', 'executable'].map(name => path.join(root, name));
+  directories.forEach(directory => fs.mkdirSync(directory));
+  fs.mkdirSync(path.join(directories[0], 'R'));
+  fs.writeFileSync(path.join(directories[1], 'R'), '#!/bin/sh\n', { mode: 0o600 });
+  const executable = path.join(directories[2], 'R');
+  fs.writeFileSync(executable, '#!/bin/sh\n', { mode: 0o700 });
+  const mod = load('util.ts', { winreg: class {} }, {
+    platform: process.platform, env: { PATH: directories.join(path.delimiter) },
+  });
+  assert.equal(await mod.getRPath({ get: () => '' }), executable);
+});
+
+test('PATH ignores inaccessible candidates and falls back when none are usable', async () => {
+  const mod = load('util.ts', {
+    winreg: class {}, fs: { ...fs, statSync: () => { throw new Error('EACCES'); } },
+  }, { platform: 'linux', env: { PATH: '/inaccessible' } });
+  assert.equal(await mod.getRPath({ get: () => '' }), 'R');
 });
 
 test('R client forwards file watching and handles socket errors without losing Coc selectors', async () => {
