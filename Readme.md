@@ -37,6 +37,19 @@ The development version of languageserver can be installed from GitHub, using th
 devtools::install_github("REditorSupport/languageserver")
 ```
 
+## Development
+
+Use Node.js 24 and npm 11.9.0 for development.
+
+```sh
+npm ci
+npm run build
+npm run typecheck
+npm test
+```
+
+Commit `package-lock.json` when updating dependencies.
+
 ## License
 
 MIT License. See [the license](LICENSE) for more details.
