@@ -20,7 +20,7 @@ async function createClient(config: WorkspaceConfiguration, selector: DocumentFi
   let client: LanguageClient
 
   const debug = config.get<boolean>("lsp.debug")
-  const path = await getRPath(config)
+  const path = await getRPath(config, cwd)
   if (debug) {
     console.log(`R binary: ${path}`)
   }

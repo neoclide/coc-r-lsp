@@ -1,9 +1,9 @@
 import winreg from "winreg"
 import { WorkspaceConfiguration } from 'coc.nvim'
 import { accessSync, constants, existsSync, statSync } from "fs"
-import { delimiter, join } from "path"
+import { delimiter, resolve } from "path"
 
-export async function getRPath(config: WorkspaceConfiguration) {
+export async function getRPath(config: WorkspaceConfiguration, cwd: string) {
   let path = config.get<string>("lsp.path")
   if (path && existsSync(path)) {
     return path
@@ -11,9 +11,9 @@ export async function getRPath(config: WorkspaceConfiguration) {
 
   // Prefer the selected PATH installation before the Windows registry.
   const executable = process.platform === 'win32' ? 'R.exe' : 'R'
-  for (const directory of (process.env.PATH || '').split(delimiter)) {
-    if (!directory) continue
-    const candidate = join(directory, executable)
+  const directories = process.env.PATH === undefined ? [] : process.env.PATH.split(delimiter)
+  for (const directory of directories) {
+    const candidate = resolve(cwd, directory, executable)
     try {
       if (!statSync(candidate).isFile()) continue
       accessSync(candidate, process.platform === 'win32' ? constants.F_OK : constants.X_OK)

@@ -27,7 +27,7 @@ function resolver(platform, PATH, files, registryPath) {
     },
     path: platform === 'win32' ? path.win32 : path.posix,
   }, { platform, env: { PATH } });
-  return { get: configured => mod.getRPath({ get: () => configured }), reads: () => registryReads };
+  return { get: configured => mod.getRPath({ get: () => configured }, platform === 'win32' ? 'C:\\workspace' : '/workspace'), reads: () => registryReads };
 }
 
 test('explicit Coc r.lsp.path wins over PATH and registry', async () => {
@@ -64,14 +64,34 @@ test('PATH skips directories and non-executable files before a real executable',
   const mod = load('util.ts', { winreg: class {} }, {
     platform: process.platform, env: { PATH: directories.join(path.delimiter) },
   });
-  assert.equal(await mod.getRPath({ get: () => '' }), executable);
+  assert.equal(await mod.getRPath({ get: () => '' }, root), executable);
 });
 
 test('PATH ignores inaccessible candidates and falls back when none are usable', async () => {
   const mod = load('util.ts', {
     winreg: class {}, fs: { ...fs, statSync: () => { throw new Error('EACCES'); } },
   }, { platform: 'linux', env: { PATH: '/inaccessible' } });
-  assert.equal(await mod.getRPath({ get: () => '' }), 'R');
+  assert.equal(await mod.getRPath({ get: () => '' }, '/workspace'), 'R');
+});
+
+test('relative and empty PATH entries resolve against the client working directory', async t => {
+  const root = fs.mkdtempSync(path.join(require('node:os').tmpdir(), 'coc-r-cwd-'));
+  t.after(() => fs.rmSync(root, { recursive: true, force: true }));
+  const cwd = path.join(root, 'workspace');
+  fs.mkdirSync(path.join(cwd, 'tools'), { recursive: true });
+  const name = process.platform === 'win32' ? 'R.exe' : 'R';
+  const local = path.join(cwd, name);
+  const tools = path.join(cwd, 'tools', name);
+  fs.writeFileSync(local, '#!/bin/sh\n', { mode: 0o700 });
+  fs.writeFileSync(tools, '#!/bin/sh\n', { mode: 0o700 });
+  for (const [PATH, expected] of [
+    ['tools', tools],
+    [`${path.delimiter}tools`, local],
+    ['', local],
+  ]) {
+    const mod = load('util.ts', { winreg: class {} }, { platform: process.platform, env: { PATH } });
+    assert.equal(await mod.getRPath({ get: () => '' }, cwd), expected);
+  }
 });
 
 test('R client forwards file watching and handles socket errors without losing Coc selectors', async () => {
@@ -87,7 +107,7 @@ test('R client forwards file watching and handles socket errors without losing C
   }
   const uri = value => ({ scheme: 'file', fsPath: value.replace('file://', ''), toString: () => value });
   const module = load('index.ts', {
-    './util': { getRPath: async () => 'R' },
+    './util': { getRPath: async (_config, cwd) => { assert.equal(cwd, '/project'); return 'R'; } },
     net: { createServer: cb => {
       connection = cb;
       return { listen() {}, close() {} };
