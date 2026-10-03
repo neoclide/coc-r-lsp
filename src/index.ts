@@ -1,7 +1,7 @@
 import { ChildProcess, spawn } from 'child_process'
 import {
   ExtensionContext, LanguageClient, LanguageClientOptions,
-  OutputChannel,
+  OutputChannel, Thenable,
   RevealOutputChannelOn, StreamInfo,
   Uri, window, workspace, WorkspaceConfiguration
 } from 'coc.nvim'
