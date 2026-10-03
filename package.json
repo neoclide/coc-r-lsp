@@ -15,6 +15,7 @@
   "scripts": {
     "clean": "rimraf lib",
     "build": "webpack",
+    "test": "node --test test-upstream.cjs",
     "prepare": "webpack"
   },
   "activationEvents": [

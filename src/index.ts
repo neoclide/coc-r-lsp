@@ -47,6 +47,9 @@ async function createClient(config: WorkspaceConfiguration, selector: DocumentFi
       socket.on('end', () => {
         console.log('R process disconnected')
       })
+      socket.on('error', err => {
+        outputChannel.appendLine(`R process error: ${err.message}`)
+      })
       server.close()
       resolve({ reader: socket, writer: socket })
     })
@@ -86,6 +89,7 @@ async function createClient(config: WorkspaceConfiguration, selector: DocumentFi
     synchronize: {
       // Synchronize the setting section 'r' to the server
       configurationSection: 'r.lsp',
+      fileEvents: workspace.createFileSystemWatcher('**/*.{R,r}'),
     },
     revealOutputChannelOn: RevealOutputChannelOn.Never
   }
